@@ -10,26 +10,61 @@ public class PhysicsHandler {
     }
 
     public void calculateLocation(MovableGameObject go, ArrayList<GameObject> levelObjects) {
-        System.out.print(go.getVelocityY() + gravity);
         go.setVelocityY(go.getVelocityY() + gravity);
-        System.out.println(" AND " + go.getVelocityY());
-        int newPosX = (int) Math.floor(go.getPosX() + go.getVelocityX());
-        int newPosY = (int) Math.floor(go.getPosY() + go.getVelocityY());
-
-        go.updateLocation(newPosX, newPosY);
+        
+        Pair<Integer, Integer> newPositions = detectCollision(go, levelObjects);
+        System.out.println(newPositions.getKey() +", "+ newPositions.getValue());
+       
+        go.updateLocation(newPositions.getKey(), newPositions.getValue());
     }
 
-    public Pair<Integer, Integer> detectCollision(MovableGameObject go,  ArrayList<GameObject> levelObjects) {
+    private Pair<Integer, Integer> detectCollision(MovableGameObject go,  ArrayList<GameObject> levelObjects) {
         if (!go.getCollidable()) {
             return null;
         }
-        Rectangle2D r1 = go.getBounds();
+        int newPosX = (int) Math.floor(go.getPosX() + go.getVelocityX());
+        int newPosY = (int) Math.floor(go.getPosY() + go.getVelocityY());
+        Rectangle2D r1 = new Rectangle2D(newPosX, newPosY, go.getWidth(), go.getHeight());
+      
+        
         for (GameObject object : levelObjects) {
-            Rectangle2D r2 = object.getBounds();
-            if (r1.intersects(r2)){
-                
+            if (object.getCollidable() && go.getID() != object.getID()){ 
+                Rectangle2D r2 = object.getBounds();
+                if (r1.intersects(r2)){
+                    return handleCollision(go, object.getObjectType(), r1, r2);
+                }
             }
         }
-        return null;
+        return new Pair<>(newPosX, newPosY);
     }
+
+    private Pair<Integer, Integer> handleCollision(MovableGameObject go, String collidedObjectType, Rectangle2D r1, Rectangle2D r2){
+        Double factor = 0.99;
+        int possiblePosX =  (int) Math.floor(go.getPosX() + go.getVelocityX());
+        int possiblePosY =  (int) Math.floor(go.getPosY() + go.getVelocityY());
+        
+        switch(collidedObjectType){
+            case"wall":
+                while (r1.intersects(r2)){
+                    possiblePosX = (int) Math.floor((go.getVelocityX() * factor) + go.getPosX()); 
+                    r1 = new Rectangle2D(possiblePosX, possiblePosY, go.getWidth(), go.getHeight());
+                    factor = factor - 0.01;
+                }
+                go.setVelocityX(0.0);
+                break;
+            case "floor":
+                while (r1.intersects(r2)){
+                    possiblePosY = (int) Math.floor((go.getVelocityY() * factor) + go.getPosY()); 
+                    r1 = new Rectangle2D(possiblePosX, possiblePosY, go.getWidth(), go.getHeight());
+                    factor = factor - 0.01;
+                }
+                go.setVelocityY(0.0);
+                break;
+            default:
+                break;
+        }
+        return new Pair<>(possiblePosX, possiblePosY);
+    }   
+
+
 }

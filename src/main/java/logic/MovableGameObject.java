@@ -3,8 +3,8 @@ public class MovableGameObject extends GameObject {
     private Double velocityX;
     private Double velocityY;
     
-    public MovableGameObject(int width, int height, int startingPosX, int startingPosY, Double velocityX, Double velocityY, Boolean collision) {
-        super(width, height, startingPosX, startingPosY, collision);
+    public MovableGameObject(int id, String objectType, int width, int height, int startingPosX, int startingPosY, Double velocityX, Double velocityY, Boolean collision) {
+        super(id, objectType, width, height, startingPosX, startingPosY, collision);
         this.velocityX = velocityX;
         this.velocityY = velocityY;
     }

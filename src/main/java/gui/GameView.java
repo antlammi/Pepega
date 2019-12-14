@@ -4,7 +4,6 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.*;
 import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
-
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayDeque;
@@ -38,7 +37,7 @@ public class GameView {
         this.level = new Level(level, 800, 800);
         ArrayList<GameObject> toDraw = this.level.getLevelObjects();
         for (GameObject go : toDraw){
-           updatePosition(go);
+           drawObject(go);
         }
         
         this.kuffo = (Kuffo) toDraw.get(0);
@@ -64,7 +63,7 @@ public class GameView {
                         updateTrail(trail.poll(), dir);
                     }
                     physics.calculateLocation(kuffo, level.getLevelObjects());
-                    updatePosition(kuffo);
+                    drawObject(kuffo);
                     trail.add(new Pair<Integer, Integer>(kuffo.getPosX(), kuffo.getPosY()));
                     trail_direction.add(kuffo.getVelocityX() >= 0);
                 }
@@ -73,11 +72,12 @@ public class GameView {
         timer.start();
     }
 
-    public void updatePosition(GameObject go) {
+    public void drawObject(GameObject go) {
         gc.setFill(go.getPaint());
         gc.fillRect(go.getPosX(), go.getPosY(), go.getWidth(), go.getHeight());
     }
 
+   
     public void updateTrail(Pair<Integer, Integer> location, Boolean dir) {
         Image img = (dir) ? new Image("kuffo_removed.png") : new Image("kuffo_reversed_removed.png");
         ImagePattern trail_end = new ImagePattern(img);

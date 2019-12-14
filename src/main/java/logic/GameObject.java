@@ -10,15 +10,25 @@ public class GameObject {
     private int posX;
     private int posY;
     private Paint paint;
-    
-    public GameObject(int width, int height, int startingPosX, int startingPosY, Boolean collidable) {
+    private final int id;
+    private String objectType;
+    public GameObject(int id, String objectType, int width, int height, int startingPosX, int startingPosY, Boolean collidable) {
+        this.id = id;
+        this.objectType = objectType;
         this.width = width;
         this.height = height;
         this.posX = startingPosX;
         this.posY = startingPosY;
         this.collidable = collidable;
+        
     }
 
+    public int getID(){
+        return this.id;
+    }
+    public String getObjectType(){
+        return this.objectType;
+    }
     public Boolean getCollidable(){
         return collidable;
     }
@@ -43,7 +53,7 @@ public class GameObject {
     public void setPosY(int posY){
         this.posY = posY;
     }
-
+   
     public Rectangle2D getBounds(){
         return new Rectangle2D(posX, posY, width, height);
     }
