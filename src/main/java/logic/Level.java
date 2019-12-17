@@ -24,28 +24,34 @@ public class Level{
     }
 
     public void buildLevel(){
-        MovableGameObject go1 = buildMovableGameObject("kuffo", 30, 30, 50, 500, 0.0, 0.0, true);
-        GameObject go2 = buildGameObject("wall", 30, 300, 500, 500, true);
-        GameObject go3 = buildGameObject("wall", 30, 300, 400, 400, true);
-        GameObject go4 = buildGameObject("floor", this.width, 10, 0, 790, true);
-        GameObject go5 = buildGameObject("wall", 30, this.height, 0, 0, true);
+        MovableGameObject go1 = buildMovableGameObject("kuffo", 20, 20, 50, 500, 0.0, 0.0);
+        GameObject go2 = buildGameObject("wall", 30, 300, 500, 500);
+        GameObject go3 = buildGameObject("wall", 30, 300, 400, 400);
+        GameObject go4 = buildGameObject("floor", this.width, 10, 0, 790);
+        GameObject go5 = buildGameObject("wall", 30, this.height, 0, 0);
+        GameObject go6 = buildGameObject("spikes", 50, 50, 340, 740);
         this.levelObjects.add(go1);
         this.levelObjects.add(go2);
         this.levelObjects.add(go3);
         this.levelObjects.add(go4);
         this.levelObjects.add(go5);
+        this.levelObjects.add(go6);
     }
     
-    private GameObject buildGameObject(String objectType, int width, int height, int startingPosX, int startingPosY, Boolean collidable){
+    private GameObject buildGameObject(String objectType, int width, int height, int startingPosX, int startingPosY){
         GameObject go;
        
         switch(objectType.toLowerCase()){
             case "wall":
-                go = new Wall(currentObjectID, objectType, width, height, startingPosX, startingPosY, collidable);
+                go = new Wall(currentObjectID, width, height, startingPosX, startingPosY);
                 currentObjectID++;
                 break;
             case "floor":
-                go = new Floor(currentObjectID, objectType, width, height, startingPosX, startingPosY, collidable);
+                go = new Floor(currentObjectID, width, height, startingPosX, startingPosY);
+                currentObjectID++;
+                break;
+            case "spikes":
+                go = new Spikes(currentObjectID, width, height, startingPosX, startingPosY);
                 currentObjectID++;
                 break;
             default:
@@ -54,11 +60,11 @@ public class Level{
         }
         return go;
     }
-    private MovableGameObject buildMovableGameObject(String objectType, int width, int height, int startingPosX, int startingPosY, Double velocityX, Double velocityY, Boolean collidable){
+    private MovableGameObject buildMovableGameObject(String objectType, int width, int height, int startingPosX, int startingPosY, Double velocityX, Double velocityY){
         MovableGameObject mgo;
         switch(objectType){
             case "kuffo":
-                mgo = new Kuffo(currentObjectID, objectType, width, height, startingPosX, startingPosY, velocityX, velocityY, collidable);
+                mgo = new Kuffo(currentObjectID, width, height, startingPosX, startingPosY, velocityX, velocityY);
                 currentObjectID++;
                 break;
             default: 

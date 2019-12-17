@@ -12,7 +12,8 @@ public class GameObject {
     private Paint paint;
     private final int id;
     private String objectType;
-    public GameObject(int id, String objectType, int width, int height, int startingPosX, int startingPosY, Boolean collidable) {
+    private Boolean lethal; 
+    public GameObject(int id, String objectType, int width, int height, int startingPosX, int startingPosY, Boolean collidable, Boolean lethal) {
         this.id = id;
         this.objectType = objectType;
         this.width = width;
@@ -20,7 +21,7 @@ public class GameObject {
         this.posX = startingPosX;
         this.posY = startingPosY;
         this.collidable = collidable;
-        
+        this.lethal = lethal;
     }
 
     public int getID(){
@@ -46,6 +47,9 @@ public class GameObject {
     }
     public Paint getPaint(){
         return paint;
+    }
+    public Boolean getLethality(){
+        return this.lethal;
     }
     public void setPosX(int posX){
         this.posX = posX;

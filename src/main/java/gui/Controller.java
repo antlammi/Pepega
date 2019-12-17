@@ -2,6 +2,7 @@ package gui;
 
 import javafx.scene.Scene;
 import logic.Kuffo;
+import logic.Quadruplet; 
 
 public class Controller {
     private Kuffo kuffo;
@@ -29,6 +30,8 @@ public class Controller {
                 case D:
                     kuffo.incrementVelocityX();
                     break;
+                case R:
+                   break;
                 default:
                     break;
             }
@@ -43,6 +46,10 @@ public class Controller {
                 case S:
                     break;
                 case D:
+                    break;
+                case R:
+                    Quadruplet<Integer, Integer, Boolean, Double> newLocation = kuffo.pollTrail();
+                    kuffo.teleport(newLocation.x, newLocation.y);
                     break;
                 default:
                     break;

@@ -4,45 +4,58 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.*;
 import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.ArrayDeque;
-import javafx.util.Pair;
 
 import logic.GameObject;
 import logic.Level;
 import logic.Kuffo;
 import logic.PhysicsHandler;
+import logic.Quadruplet;
 
 public class GameView {
     private Level level;
+    private int levelKey;
     private Canvas canvas;
     private GraphicsContext gc;
     private Kuffo kuffo;
-    private ArrayDeque<Pair<Integer, Integer>> trail;
-    private ArrayDeque<Boolean> trail_direction;
     private PhysicsHandler physics;
     private final long[] previousUpdate = new long[1];
     public GameView(int level) {
         this.canvas = new Canvas(800, 800);
         this.gc = canvas.getGraphicsContext2D();
-        trail_direction = new ArrayDeque<>();
-        trail = new ArrayDeque<>();
-        drawLevel(level);
-        this.physics = new PhysicsHandler(0.25);
+        this.levelKey = level;
+        createLevel(levelKey);
+        this.physics = new PhysicsHandler(0.25, this.kuffo);
         gameLoop();
     }
 
-    private void drawLevel(int level){
+    private void createLevel(int level){
         this.level = new Level(level, 800, 800);
         ArrayList<GameObject> toDraw = this.level.getLevelObjects();
-        for (GameObject go : toDraw){
-           drawObject(go);
-        }
         
-        this.kuffo = (Kuffo) toDraw.get(0);
+        if (this.kuffo == null) {
+            this.kuffo = (Kuffo) toDraw.get(0);
+        } else {
+            
+            this.kuffo.setPosX(toDraw.get(0).getPosX());
+            this.kuffo.setPosY(toDraw.get(0).getPosY());
+            this.kuffo.setAlive(true);
+            this.kuffo.enableJump();
+            toDraw.set(0, this.kuffo);
+            kuffo.addToTrail(new Quadruplet<>(kuffo.getPosX(), kuffo.getPosY(), (kuffo.getVelocityX() >= 0), kuffo.getCurrentRotation()));
+        }
+        for (GameObject go : toDraw){
+            drawObject(go);
+        }        
     }
-
+    private void updateLevel(){ 
+        ArrayList<GameObject> toDraw = this.level.getLevelObjects();
+        for (GameObject go : toDraw){
+            drawObject(go);
+        }        
+    }
     public Canvas getCanvas() {
         return this.canvas;
     }
@@ -58,14 +71,18 @@ public class GameView {
 			public void handle(long currentTime) {
                 long deltaTime = TimeUnit.MILLISECONDS.convert((currentTime - previousUpdate[0]), TimeUnit.NANOSECONDS);
                 if (deltaTime > 50) {
-                    if (trail.size() > 30) {
-                        Boolean dir = trail_direction.poll();
-                        updateTrail(trail.poll(), dir);
+                    if (kuffo.getTrailSize() > 30) {
+                        Quadruplet<Integer, Integer, Boolean, Double> trailEntry = kuffo.pollTrail();
+                        updateTrail(trailEntry.x, trailEntry.y, trailEntry.dir, trailEntry.rotation);
                     }
                     physics.calculateLocation(kuffo, level.getLevelObjects());
-                    drawObject(kuffo);
-                    trail.add(new Pair<Integer, Integer>(kuffo.getPosX(), kuffo.getPosY()));
-                    trail_direction.add(kuffo.getVelocityX() >= 0);
+                    kuffo.addToTrail(new Quadruplet<>(kuffo.getPosX(), kuffo.getPosY(), (kuffo.getVelocityX() >= 0), kuffo.getCurrentRotation()));
+                    
+                    if (!kuffo.isAlive()){
+                        createLevel(levelKey);
+                    } else {
+                        updateLevel();
+                    }
                 }
             }
         };
@@ -78,10 +95,8 @@ public class GameView {
     }
 
    
-    public void updateTrail(Pair<Integer, Integer> location, Boolean dir) {
-        Image img = (dir) ? new Image("kuffo_removed.png") : new Image("kuffo_reversed_removed.png");
-        ImagePattern trail_end = new ImagePattern(img);
-        gc.setFill(trail_end);
-        gc.fillRect(location.getKey(), location.getValue(), kuffo.getWidth(), kuffo.getHeight());
+    public void updateTrail(int x, int y, Boolean dir, Double rotation) {
+        gc.setFill(new ImagePattern(new Image("trail_end.png")));
+        gc.fillRect(x, y, kuffo.getWidth()+10, kuffo.getHeight()+10);       
     }
 }
