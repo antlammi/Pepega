@@ -9,18 +9,19 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.*;
 import gui.GameView;
+import gui.LevelEditor;
 import gui.Controller;
 public class App extends Application {
     @Override
     public void start(Stage stage){
         Group root = new Group();
         Scene scene = new Scene(root, 800, 800, Color.rgb(0,0,0));
-        GameView gv = new GameView(1);
+        GameView gv = new GameView(1, root);
         
         Controller controller = new Controller(scene);
         controller.setKuffo(gv.getKuffo());
         controller.activate();
-
+        LevelEditor editor = new LevelEditor();
         root.getChildren().add(gv.getCanvas());
         stage.setScene(scene);
         stage.setTitle("Pepegahyppely");

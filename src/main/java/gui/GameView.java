@@ -3,7 +3,11 @@ package gui;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
+import javafx.scene.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +25,10 @@ public class GameView {
     private GraphicsContext gc;
     private Kuffo kuffo;
     private PhysicsHandler physics;
+    private Group root;
     private final long[] previousUpdate = new long[1];
-    public GameView(int level) {
+    public GameView(int level, Group root) {
+        this.root = root;
         this.canvas = new Canvas(800, 800);
         this.gc = canvas.getGraphicsContext2D();
         this.levelKey = level;
@@ -31,8 +37,9 @@ public class GameView {
         gameLoop();
     }
 
-    private void createLevel(int level){
-        this.level = new Level(level, 800, 800);
+    private void createLevel(int levelKey){
+        this.level = new Level(levelKey, 800, 800);
+        System.out.println(this.level.exportLevelToString());
         ArrayList<GameObject> toDraw = this.level.getLevelObjects();
         
         if (this.kuffo == null) {
@@ -48,9 +55,18 @@ public class GameView {
         }
         for (GameObject go : toDraw){
             drawObject(go);
-        }        
+        }
+           
     }
     private void updateLevel(){ 
+        this.root.getChildren().remove(this.canvas);
+        this.canvas = new Canvas(800, 800);
+        this.gc = canvas.getGraphicsContext2D();
+        this.root.getChildren().add(this.canvas);
+        if (kuffo.getTrailSize() > 50) {
+            Quadruplet<Integer, Integer, Boolean, Double> trailEntry = kuffo.pollTrail();
+            updateTrail(trailEntry.x, trailEntry.y, trailEntry.dir, trailEntry.rotation);
+        }
         ArrayList<GameObject> toDraw = this.level.getLevelObjects();
         for (GameObject go : toDraw){
             drawObject(go);
@@ -71,18 +87,15 @@ public class GameView {
 			public void handle(long currentTime) {
                 long deltaTime = TimeUnit.MILLISECONDS.convert((currentTime - previousUpdate[0]), TimeUnit.NANOSECONDS);
                 if (deltaTime > 50) {
-                    if (kuffo.getTrailSize() > 30) {
-                        Quadruplet<Integer, Integer, Boolean, Double> trailEntry = kuffo.pollTrail();
-                        updateTrail(trailEntry.x, trailEntry.y, trailEntry.dir, trailEntry.rotation);
-                    }
                     physics.calculateLocation(kuffo, level.getLevelObjects());
                     kuffo.addToTrail(new Quadruplet<>(kuffo.getPosX(), kuffo.getPosY(), (kuffo.getVelocityX() >= 0), kuffo.getCurrentRotation()));
-                    
+
                     if (!kuffo.isAlive()){
                         createLevel(levelKey);
                     } else {
                         updateLevel();
                     }
+                    
                 }
             }
         };
@@ -96,7 +109,18 @@ public class GameView {
 
    
     public void updateTrail(int x, int y, Boolean dir, Double rotation) {
-        gc.setFill(new ImagePattern(new Image("trail_end.png")));
-        gc.fillRect(x, y, kuffo.getWidth()+10, kuffo.getHeight()+10);       
+
+        ImageView iv = (dir) ? new ImageView(new Image("kuffo_shadow.png")) : new ImageView(new Image("kuffo_shadow_reversed.png"));
+
+        iv.setRotate(rotation);
+
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        Image img = iv.snapshot(params, null);
+
+        Paint fillImage = new ImagePattern(img);
+        
+        gc.setFill(fillImage);
+        gc.fillRect(x, y, kuffo.getWidth(), kuffo.getHeight());       
     }
 }

@@ -24,7 +24,7 @@ public class Level{
     }
 
     public void buildLevel(){
-        MovableGameObject go1 = buildMovableGameObject("kuffo", 20, 20, 50, 500, 0.0, 0.0);
+        MovableGameObject go1 = buildMovableGameObject("kuffo", 30, 30, 50, 500, 0.0, 0.0);
         GameObject go2 = buildGameObject("wall", 30, 300, 500, 500);
         GameObject go3 = buildGameObject("wall", 30, 300, 400, 400);
         GameObject go4 = buildGameObject("floor", this.width, 10, 0, 790);
@@ -76,4 +76,51 @@ public class Level{
     public ArrayList<GameObject> getLevelObjects(){
         return this.levelObjects;
     }
+
+    public void buildLevelFromString(String levelString){
+        String[] levelObjects = levelString.split("\n");
+
+        for (int i=0; i<levelObjects.length; i++){
+            String[] objectString = levelObjects[i].split(":");
+            String objectType = objectString[1];
+            Integer width = Integer.parseInt(objectString[2]);
+            Integer height = Integer.parseInt(objectString[3]);
+            Integer posX = Integer.parseInt(objectString[4]);
+            Integer posY = Integer.parseInt(objectString[5]);
+            if (objectString[0].equals("mgo")){
+                Double velX = Double.parseDouble(objectString[6]);
+                Double velY = Double.parseDouble(objectString[7]);
+                this.levelObjects.add(buildMovableGameObject(objectType, width, height, posX, posY, velX, velY));
+            } else if (objectString[0].equals("go")){
+                this.levelObjects.add(buildGameObject(objectType, width, height, posX, posY));
+            }
+        }
+    }
+
+    public String exportLevelToString(){
+        String levelString = "";
+        for (int i=0; i<this.levelObjects.size(); i++) {
+            String objectString = "";
+            if (this.levelObjects.get(i) instanceof MovableGameObject){
+                MovableGameObject mgo = (MovableGameObject) this.levelObjects.get(i);
+                objectString = objectString.concat(
+                    "mgo:" +  mgo.getObjectType() + ":" 
+                    + mgo.getWidth() + ":" + mgo.getHeight() + ":" 
+                    + mgo.getPosX() + ":" + mgo.getPosY() + ":" 
+                    + mgo.getVelocityX() + ":" + mgo.getVelocityY()
+                );
+            } else if (this.levelObjects.get(i) instanceof GameObject){
+                GameObject go = this.levelObjects.get(i);
+                objectString = objectString.concat(
+                    "go:" +  go.getObjectType() + ":" 
+                    + go.getWidth() + ":" + go.getHeight() + ":" 
+                    + go.getPosX() + ":" + go.getPosY() + ":" 
+                );
+            }
+            levelString = levelString.concat(objectString + "\n");
+        }
+
+        return levelString;
+    }
+    
 }
