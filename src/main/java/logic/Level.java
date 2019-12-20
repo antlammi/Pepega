@@ -38,7 +38,7 @@ public class Level{
         this.levelObjects.add(go6);
     }
     
-    private GameObject buildGameObject(String objectType, int width, int height, int startingPosX, int startingPosY){
+    public GameObject buildGameObject(String objectType, int width, int height, int startingPosX, int startingPosY){
         GameObject go;
        
         switch(objectType.toLowerCase()){
@@ -60,7 +60,7 @@ public class Level{
         }
         return go;
     }
-    private MovableGameObject buildMovableGameObject(String objectType, int width, int height, int startingPosX, int startingPosY, Double velocityX, Double velocityY){
+    public MovableGameObject buildMovableGameObject(String objectType, int width, int height, int startingPosX, int startingPosY, Double velocityX, Double velocityY){
         MovableGameObject mgo;
         switch(objectType){
             case "kuffo":
